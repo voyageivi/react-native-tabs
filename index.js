@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
     Keyboard,
     Platform,
+    ScrollView,
 } from 'react-native';
 
 type State = {
@@ -53,19 +54,31 @@ class Tabs extends Component {
                 }
             });
         }
-        return (
-            <View style={[styles.tabbarView, this.props.style, this.state.keyboardUp && styles.hidden]}>
-                {React.Children.map(this.props.children.filter(c=>c),(el)=>
-                    <TouchableOpacity key={el.props.name+"touch"}
-                       style={[styles.iconView, this.props.iconStyle, (el.props.name || el.key) == selected ? this.props.selectedIconStyle || el.props.selectedIconStyle || {} : {} ]}
+        let scrollable = this.props.scrollable || false;
+        let children = React.Children.map(this.props.children.filter(c => c), (el) =>
+            <TouchableOpacity key={el.props.name+"touch"}
+                       style={[styles.iconView,scrollable && {flex:0}, this.props.iconStyle, (el.props.name || el.key) == selected ? this.props.selectedIconStyle || el.props.selectedIconStyle || {} : {} ]}
                        onPress={()=>!self.props.locked && self.onSelect(el)}
                        onLongPress={()=>self.onSelect(el)}
                        activeOpacity={el.props.pressOpacity}>
                          {selected == (el.props.name || el.key) ? React.cloneElement(el, {selected: true, style: [el.props.style, this.props.selectedStyle, el.props.selectedStyle]}) : el}
                     </TouchableOpacity>
-                )}
-            </View>
         );
+        if (scrollable) {
+            return (
+                <View style={[styles.tabbarView, this.props.style]}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {children}
+                </ScrollView> 
+            </View>
+            )
+        } else {
+            return (
+                <View style={[styles.tabbarView, this.props.style]}>
+                {children}
+            </View>
+            )
+        }
     }
 }
 var styles = StyleSheet.create({
